@@ -26,24 +26,17 @@ resource "google_project_service" "gcp_services" {
 ## Service Accounts ##
 
 # Vertex Pipelines service account
-resource "google_service_account" "pipelines_sa" {
+resource "google_service_account" "vertex_ai_pipelines_service_account" {
   project      = var.project_id
-  account_id   = "vertex-pipelines"
-  display_name = "Vertex Pipelines Service Account"
+  account_id   = "vertex-ai-pipelines-sa" 
+  display_name = "Vertex AI Pipelines Service Account"
   depends_on   = [google_project_service.gcp_services]
 }
 
-# Cloud Function service account
-resource "google_service_account" "vertex_cloudfunction_sa" {
-  project      = var.project_id
-  account_id   = "vertex-cloudfunction-sa"
-  display_name = "Cloud Function (Vertex Pipeline trigger) Service Account"
-  depends_on   = [google_project_service.gcp_services]
-}
 
 ## GCS buckets ##
-resource "google_storage_bucket" "pipeline_root_bucket" {
-  name                        = "${var.project_id}-pl-root"
+resource "google_storage_bucket" "vertex_ai_pipeline_artifacts_bucket" {
+  name                        = "${var.project_id}-vertex-ai-pipeline-artifacts" 
   location                    = var.region
   project                     = var.project_id
   uniform_bucket_level_access = true
@@ -51,58 +44,6 @@ resource "google_storage_bucket" "pipeline_root_bucket" {
   depends_on                  = [google_project_service.gcp_services]
 }
 
-## Cloud Function - used to trigger pipelines ##
-
-locals {
-  # Cloud Functions not available in all regions
-  # Allow the user to override the Cloud Function region using var.cloudfunction_region
-  # Otherwise just use var.region
-  cloudfunction_region = coalesce(var.cloudfunction_region, var.region)
-}
-
-# Pub/Sub topic (for triggering pipelines)
-resource "google_pubsub_topic" "pipeline_trigger_topic" {
-  name       = var.pubsub_topic_name
-  project    = var.project_id
-  depends_on = [google_project_service.gcp_services]
-}
-
-# Cloud Function / Cloud Build staging bucket
-resource "google_storage_bucket" "staging_bucket" {
-  name                        = "${var.project_id}-staging"
-  location                    = local.cloudfunction_region
-  project                     = var.project_id
-  uniform_bucket_level_access = true
-  public_access_prevention    = "enforced"
-  depends_on                  = [google_project_service.gcp_services]
-}
-
-# Cloud function (for triggering pipelines)
-module "cloudfunction" {
-  source                        = "../cloudfunction"
-  project_id                    = var.project_id
-  region                        = local.cloudfunction_region
-  function_name                 = var.cloudfunction_name
-  description                   = var.cloudfunction_description
-  source_code_bucket_name       = google_storage_bucket.staging_bucket.name
-  runtime                       = "python39"
-  entry_point                   = "cf_handler"
-  cf_service_account            = google_service_account.vertex_cloudfunction_sa.email
-  vpc_connector                 = var.cloudfunction_vpc_connector
-  vpc_connector_egress_settings = var.cloudfunction_vpc_connector_egress_settings
-  event_trigger = {
-    event_type           = "google.pubsub.topic.publish",
-    resource             = google_pubsub_topic.pipeline_trigger_topic.id
-    retry_policy_enabled = false
-  }
-  environment_variables = {
-    VERTEX_LOCATION      = var.region
-    VERTEX_PIPELINE_ROOT = google_storage_bucket.pipeline_root_bucket.url
-    VERTEX_PROJECT_ID    = var.project_id
-    VERTEX_SA_EMAIL      = google_service_account.pipelines_sa.email
-  }
-  depends_on = [google_project_service.gcp_services]
-}
 
 ## Vertex Metadata store ##
 resource "google_vertex_ai_metadata_store" "default_metadata_store" {
@@ -115,9 +56,9 @@ resource "google_vertex_ai_metadata_store" "default_metadata_store" {
 }
 
 ## Artifact Registry - container images ##
-resource "google_artifact_registry_repository" "vertex-images" {
-  repository_id = "vertex-images"
-  description   = "Container image repository for training container images"
+resource "google_artifact_registry_repository" "vertex_ai_container_images_repository" {
+  repository_id = "vertex-ai-container-images" 
+  description   = "Container image repository for Vertex AI components"
   project       = var.project_id
   location      = var.region
   format        = "DOCKER"
@@ -125,11 +66,21 @@ resource "google_artifact_registry_repository" "vertex-images" {
 }
 
 ## Artifact Registry - KFP pipelines ##
-resource "google_artifact_registry_repository" "vertex-pipelines" {
-  repository_id = "vertex-pipelines"
-  description   = "KFP repository for Vertex Pipelines"
+resource "google_artifact_registry_repository" "vertex_ai_pipelines_repository" {
+  repository_id = "vertex-ai-pipelines" 
+  description   = "KFP repository for Vertex AI Pipelines"
   project       = var.project_id
   location      = var.region
   format        = "KFP"
+  depends_on    = [google_project_service.gcp_services]
+}
+
+## Artifact Registry - Vertex AI Packages ##
+resource "google_artifact_registry_repository" "vertex_ai_packages_repository" {
+  repository_id = "vertex-ai-packages"
+  description   = "Repository for Vertex AI Packages"
+  project       = var.project_id
+  location      = var.region
+  format        = "PYTHON" # Important: Set the format to PYTHON
   depends_on    = [google_project_service.gcp_services]
 }

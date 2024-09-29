@@ -23,16 +23,3 @@ variable "region" {
   description = "Google Cloud region to use for resources and Vertex Pipelines execution."
   type        = string
 }
-
-variable "cloud_schedulers_config" {
-  description = "Map of configurations for cloud scheduler jobs (each a different pipeline schedule)."
-  type = map(object({
-    description         = string
-    schedule            = string
-    time_zone           = string
-    template_path       = string
-    enable_caching      = bool
-    pipeline_parameters = map(any)
-  }))
-  default = {}
-}
