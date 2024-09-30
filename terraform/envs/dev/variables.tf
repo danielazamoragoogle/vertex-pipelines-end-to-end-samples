@@ -23,3 +23,8 @@ variable "region" {
   description = "Google Cloud region to use for resources and Vertex Pipelines execution."
   type        = string
 }
+
+variable "zone" {
+  description = "Google Cloud zone to use for resources that need it (e.g. Vertex Workbench)."
+  type        = string
+}

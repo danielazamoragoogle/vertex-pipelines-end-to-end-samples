@@ -22,13 +22,23 @@ resource "google_project_iam_member" "pipelines_sa_project_roles" {
   member   = google_service_account.vertex_ai_pipelines_service_account.member
 }
 
-# Grant roles to each user in the provided list
-resource "google_project_iam_member" "user_project_roles" {
-  for_each = { for user, role in var.user_roles : "${user}-${role}" => {
-    user = user
-    role = role
-  } }
-  project = var.project_id
-  role    = each.value.role
-  member  = "user:${each.value.user}"
-}
+# User project roles
+locals {
+	  members_to_roles = {
+	    for p in setproduct(
+	      toset(var.users),
+	      toset(var.user_project_roles)
+	    ) :
+	    "${p[0]}-${p[1]}" => {
+	      member = p[0]
+	      role   = p[1]
+	    }
+	  }
+	}
+	  resource "google_project_iam_member" "main" {
+	  for_each = local.members_to_roles
+	  project = var.project_id
+	  role    = each.value.role
+	  member  = each.value.member
+	
+  }

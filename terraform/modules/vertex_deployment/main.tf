@@ -84,3 +84,44 @@ resource "google_artifact_registry_repository" "vertex_ai_packages_repository" {
   format        = "PYTHON" # Important: Set the format to PYTHON
   depends_on    = [google_project_service.gcp_services]
 }
+
+## Workbench Instances for users ##
+resource "google_workbench_instance" "instance" {
+  name = "workbench-instance-datasciencedani"
+  location = var.zone
+
+  gce_setup {
+    container_image {
+      repository = "us-docker.pkg.dev/vertex-ai/training/tf-cpu.2-14.py310"
+      tag = "latest"
+    }
+  }
+}
+
+# resource  "google_workbench_instance" "default" {
+#   for_each = { for user in var.users : 
+#     index(split("@", user), 0) => user }  # Iterate over users
+
+#   name     = "workbench-${each.key}" # Unique name for each instance
+#   location = var.zone
+
+#   gce_setup {
+#     metadata = {
+#       terraform = "true"
+#     }
+#     machine_type = "n2-standard-4" # You can customize the machine type
+#     vm_image {
+#       project = "cloud-notebooks-managed"
+#       family  = "workbench-instances"
+#     }
+#     container_image {
+#       repository = "us-docker.pkg.dev/vertex-ai/training/tf-cpu.2-14.py310"
+#       tag = "latest"
+#     }
+#     enable_ip_forwarding = true
+#   }
+#   labels = {
+#     project = "vertextemplate"
+#   }
+#   desired_state = "STOPPED"
+# }

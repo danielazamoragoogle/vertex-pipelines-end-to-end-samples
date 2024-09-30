@@ -21,6 +21,17 @@ help: ## Display this help screen.
 
 env ?= dev
 AUTO_APPROVE_FLAG :=
+plan: ## Plan infrastructure to your project. Optionally set env=<dev|test|prod> (default=dev).
+	@echo "################################################################################" && \
+	echo "# Planning $$env environment" && \
+	echo "################################################################################" && \
+	if [ "$(auto-approve)" = "true" ]; then \
+		AUTO_APPROVE_FLAG="-auto-approve"; \
+	fi; \
+	cd terraform/envs/$(env) && \
+	terraform init -backend-config='bucket=${VERTEX_PROJECT_ID}-tfstate' && \
+	terraform plan -var 'project_id=${VERTEX_PROJECT_ID}' -var 'region=${VERTEX_LOCATION}' -var 'zone=${VERTEX_ZONE}' $$AUTO_APPROVE_FLAG
+
 deploy: ## Deploy infrastructure to your project. Optionally set env=<dev|test|prod> (default=dev).
 	@echo "################################################################################" && \
 	echo "# Deploy $$env environment" && \
@@ -30,7 +41,7 @@ deploy: ## Deploy infrastructure to your project. Optionally set env=<dev|test|p
 	fi; \
 	cd terraform/envs/$(env) && \
 	terraform init -backend-config='bucket=${VERTEX_PROJECT_ID}-tfstate' && \
-	terraform apply -var 'project_id=${VERTEX_PROJECT_ID}' -var 'region=${VERTEX_LOCATION}' $$AUTO_APPROVE_FLAG
+	terraform apply -var 'project_id=${VERTEX_PROJECT_ID}' -var 'region=${VERTEX_LOCATION}' -var 'zone=${VERTEX_ZONE}' $$AUTO_APPROVE_FLAG
 
 undeploy: ## Destroy the infrastructure in your project. Optionally set env=<dev|test|prod> (default=dev).
 	@echo "################################################################################" && \

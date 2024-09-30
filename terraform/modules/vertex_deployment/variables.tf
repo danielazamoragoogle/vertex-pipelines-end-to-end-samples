@@ -24,6 +24,11 @@ variable "region" {
   type        = string
 }
 
+variable "zone" {
+  description = "Google Cloud zone to use for resources that need it (e.g. Vertex Workbench)."
+  type        = string
+}
+
 variable "gcp_service_list" {
   description = "List of Google Cloud APIs to enable on the project."
   type        = list(string)
@@ -74,21 +79,21 @@ variable "pipelines_sa_project_roles" {
   ]
 }
 
-variable "common_project_roles" {
-  description = "Commonly used project IAM roles (used as a reference)."
-  type = list(string)
-  default = [
+variable "user_project_roles" {
+  description = "List of project IAM roles to be granted to the Golden Path Users."
+  type        = list(string)
+  default  = [
     "roles/artifactregistry.admin", 
     "roles/bigquery.dataEditor",
     "roles/bigquery.jobUser",
     "roles/bigquery.user",
-    "roles/cloudbuild.editor",
+    "roles/cloudbuild.builds.editor",
+    "roles/cloudbuild.integrations.editor",
     "roles/logging.viewer",
     "roles/logging.logWriter",
     "roles/notebooks.admin",
     "roles/secretmanager.secretAccessor", 
     "roles/secretmanager.secretVersionAdder",
-    "roles/iam.serviceAccountUser",
     "roles/serviceusage.serviceUsageConsumer",
     "roles/storage.admin",
     "roles/storage.objectUser",
@@ -97,16 +102,9 @@ variable "common_project_roles" {
   ]
 }
 
-variable "user_roles" {
-  description = "Map of users to a list of project IAM roles."
-  type = map(list(string))
-  default = {
-    "user1@example.com" = var.common_project_roles, # Reference the common roles
-    "user2@example.com" = var.common_project_roles, 
-    "user3@example.com" = [ 
-        # Assign specific roles if needed 
-        "roles/viewer",
-        "roles/storage.objectViewer"
-    ]
-  }
-}
+variable "users" {
+	  type= list(string)
+	  default = [
+      "user:datasciencedani@gmail.com",
+      ]
+	}

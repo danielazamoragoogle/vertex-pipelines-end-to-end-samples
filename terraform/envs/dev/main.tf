@@ -40,4 +40,5 @@ module "vertex_deployment" {
   source     = "../../modules/vertex_deployment"
   project_id = var.project_id
   region     = var.region
+  zone       = var.zone
 }
