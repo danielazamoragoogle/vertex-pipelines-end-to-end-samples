@@ -108,3 +108,10 @@ variable "users" {
       "user:datasciencedani@gmail.com",
       ]
 	}
+
+variable "user_ldaps" {
+	  type= list(string)
+	  default = [
+      "datasciencedani",
+      ]
+	}
