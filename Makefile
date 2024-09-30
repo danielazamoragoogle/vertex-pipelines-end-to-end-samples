@@ -54,6 +54,17 @@ undeploy: ## Destroy the infrastructure in your project. Optionally set env=<dev
 	terraform init -backend-config='bucket=${VERTEX_PROJECT_ID}-tfstate' && \
 	terraform destroy -var 'project_id=${VERTEX_PROJECT_ID}' -var 'region=${VERTEX_LOCATION}' $$AUTO_APPROVE_FLAG
 
+auth: ## Authenticate with your individual GCP credentials.
+	@echo "################################################################################" && \
+	echo "# Setting Project and Account ..." && \
+	echo "################################################################################" && \
+	gcloud config set project ${VERTEX_PROJECT_ID} && \
+	gcloud config set account ${GOOGLE_ACCOUNT} && \
+	echo "################################################################################" && \
+	echo "# Authenticating ..." && \
+	echo "################################################################################" && \
+	gcloud auth login
+
 install: ## Set up local Python environment for development.
 	@echo "################################################################################" && \
 	echo "# Install Python dependencies" && \
