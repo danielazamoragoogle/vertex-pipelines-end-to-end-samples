@@ -34,9 +34,11 @@ HPARAMS = dict(
     max_depth=6,
     label=LABEL,
 )
+
 RESOURCE_SUFFIX = env.get("RESOURCE_SUFFIX", "default")
-TRAINING_IMAGE = f"{env['CONTAINER_IMAGE_REGISTRY']}/training:{RESOURCE_SUFFIX}"
-PREDICTION_IMAGE = f"{env['CONTAINER_IMAGE_REGISTRY']}/prediction:{RESOURCE_SUFFIX}"
+SUFFIX = "pipelines"
+TRAINING_IMAGE = f"{env['CONTAINER_IMAGE_REGISTRY']}/training:{SUFFIX}"
+PREDICTION_IMAGE = f"{env['CONTAINER_IMAGE_REGISTRY']}/prediction:{SUFFIX}"
 
 
 @dsl.container_component
@@ -110,7 +112,7 @@ def pipeline(
         test_data_gcs_uri (str): Optional. GCS URI of static held-out test dataset.
     """
 
-    table = f"prep_training_{RESOURCE_SUFFIX}"
+    table = f"prep_training_{SUFFIX}_{RESOURCE_SUFFIX}"
     queries_folder = pathlib.Path(__file__).parent / "queries"
 
     prep_query = generate_query(

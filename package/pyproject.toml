@@ -1,0 +1,43 @@
+[build-system]
+requires = [ "poetry-core>=1.0.0",]
+build-backend = "poetry.core.masonry.api"
+
+[tool.poetry]
+name = "package"
+version = "0.1.0+danielazamora"
+authors = [ "Example User <user@example.com>",]
+description = "Vertex AI Pipelines custom package example"
+classifiers = [ "Development Status :: 3 - Alpha", "Intended Audience :: Developers", "Programming Language :: Python :: 3.9",]
+[[tool.poetry.packages]]
+include = "package"
+from = "src"
+
+[tool.flake8]
+max-line-length = 88
+per-file-ignores = [ "E203", "F841",]
+ignore = [ "E203", "F841",]
+
+[tool.poetry.dependencies]
+python = "^3.10"
+google-cloud-secret-manager = "^2.20.2"
+google-crc32c = "^1.5.0"
+pandas = "^2.2.2"
+google-cloud-bigquery = "^3.25.0"
+google-auth = "^2.33.0"
+db-dtypes = "^1.2.0"
+jinja2 = "^3.1.4"
+google-cloud-storage = "^2.18.2"
+
+[tool.pytest.ini_options]
+pythonpath = [ "src",]
+testpaths = "tests"
+junit_family = "xunit2"
+
+[tool.poetry.group.dev.dependencies]
+google-cloud-secret-manager = "^2.20.2"
+google-crc32c = "^1.5.0"
+google-api-core = "^2.19.1"
+pytest-mock = "^3.14.0"
+pytest = "^8.3.2"
+keyring = ">=25.0.0"
+keyrings-google-artifactregistry-auth = ">=1.1.0"

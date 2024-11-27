@@ -22,6 +22,7 @@ from components import lookup_model, model_batch_predict
 
 
 RESOURCE_SUFFIX = env.get("RESOURCE_SUFFIX", "default")
+SUFFIX = "pipelines"
 # set training-serving skew thresholds and emails to receive alerts:
 ALERT_EMAILS = []
 NOTIFICATION_CHANNELS = []
@@ -68,7 +69,7 @@ def pipeline(
     """
 
     queries_folder = pathlib.Path(__file__).parent / "queries"
-    table = f"prep_prediction_{RESOURCE_SUFFIX}"
+    table = f"prep_prediction_{SUFFIX}_{RESOURCE_SUFFIX}"
 
     prep_query = generate_query(
         queries_folder / "preprocessing.sql",
