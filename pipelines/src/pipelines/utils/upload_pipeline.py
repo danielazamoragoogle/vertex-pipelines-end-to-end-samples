@@ -36,7 +36,6 @@ def upload_pipeline(host: str, file_name: str, tags: List[str]) -> tuple[str, st
     templateName, versionName = client.upload_pipeline(
         file_name=file_name,
         tags=tags,
-        extra_headers={"description":extra_headers},
     )
 
     return f"{host}/{templateName}/{versionName}" 
@@ -48,14 +47,12 @@ def main(args: List[str] = None):
     parser.add_argument("--dest", type=str, required=True)
     parser.add_argument("--yaml", type=str, required=True)
     parser.add_argument("--tag", type=str, action="append")
-    parser.add_argument("--extra_headers", type=str, required=True)
     parsed_args = parser.parse_args(args)
 
     pipeline_path = upload_pipeline(
         host=parsed_args.dest,
         file_name=parsed_args.yaml,
         tags=parsed_args.tag,
-        extra_headers=parsed_args.extra_headers,
     )
     print(pipeline_path)
 

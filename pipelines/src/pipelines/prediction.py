@@ -31,7 +31,7 @@ SKEW_THRESHOLDS = {"defaultSkewThreshold": {"value": 0.001}}
 # SKEW_THRESHOLDS = {"skewThresholds": {"payment_type": {"value": 0.001}}, ... }
 
 
-@dsl.pipeline(name="turbo-prediction-pipeline")
+@dsl.pipeline(name="prediction")
 def pipeline(
     project: str = env.get("VERTEX_PROJECT_ID"),
     location: str = env.get("VERTEX_LOCATION"),

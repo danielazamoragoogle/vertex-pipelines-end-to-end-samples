@@ -79,7 +79,7 @@ def train(
     )
 
 
-@dsl.pipeline(name="turbo-training-pipeline")
+@dsl.pipeline(name="training")
 def pipeline(
     project: str = env.get("VERTEX_PROJECT_ID"),
     location: str = env.get("VERTEX_LOCATION"),

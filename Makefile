@@ -182,8 +182,7 @@ register: ## Register a pipeline in AR. Set pipeline=<your_pipeline>. Optionally
 	--dest=https://${AR_PIPELINES_REPO} \
 	--yaml=src/pipelines/${pipeline}.yaml \
 	--tag=latest \
-	--tag=$(RESOURCE_SUFFIX) \
-	--extra_headers="$(DESCRIPTION)"
+	--tag=$(RESOURCE_SUFFIX)
     
 deploy-function: ## Deploy cloud function to trigger pipelines (with its associated pubsub topic), make sure to fill needed variables in env.sh file. 
 	@echo "Creating Pub/Sub topic..."
@@ -203,7 +202,8 @@ deploy-function: ## Deploy cloud function to trigger pipelines (with its associa
 
 bucket ?= bucket_name
 name_file ?= example/file.csv
-params ?= "{\"key1\":\"value1\",\"key2\":\"value2\"}"
+params ?= "{}"
+#params ?= "{\"key1\":\"value1\",\"key2\":\"value2\"}"
 
 enable_caching ?= False
 pipeline ?= training
@@ -261,7 +261,7 @@ delete_event_trigger: ## Delete event-based trigger. Set bucket=<your_bucket_to_
 	--notification_id=$(notification_id)
 
 schedule ?= "00 16 * * *" 
-pipeline_schedule_no ?= 1 
+pipeline_schedule_no ?= 2 
 
 create_cron_trigger: ## Create cron-based trigger. Set pipeline=<pipeline_to_schedule> (default=training). Optionally set schedule=<your_cron_shedule> (default="30 16 * * *"), pipeline_schedule_no=<no_of_schedule_for_a_pipeline> (default=1), enable_caching=<True|False> (default=False), params=<your_pipeline_parameters_str> (default="{}"; use \" for inner dictionary keys). Docs: https://cloud.google.com/scheduler/docs/schedule-run-cron-job-gcloud.
 	@$(MAKE) register pipeline=$(pipeline) && \
@@ -294,7 +294,7 @@ list_cron:
     
 delete_cron: ## Delete cron job to run immediatly. Set cron_id (typically pipeline-pipeline_schedule_no). 
 	@echo "################################################################################" && \
-	echo "Deleting cron $(cron_id)" && \
+	echo "Deleting cron $(cron_id) in $(LOCATION)" && \
 	echo "################################################################################" && \
 	gcloud scheduler jobs delete $(cron_id) --location=$(LOCATION)
     
