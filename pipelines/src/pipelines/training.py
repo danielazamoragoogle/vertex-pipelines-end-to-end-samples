@@ -85,7 +85,7 @@ def pipeline(
     location: str = env.get("VERTEX_LOCATION"),
     bq_location: str = env.get("BQ_LOCATION"),
     bq_source_uri: str = "bigquery-public-data.chicago_taxi_trips.taxi_trips",
-    model_name: str = "xgb_regressor",
+    model_name: str = f"xgb_regressor_{RESOURCE_SUFFIX}",
     dataset: str = "turbo_templates",
     timestamp: str = "2022-12-01 00:00:00",
     test_data_gcs_uri: str = "",

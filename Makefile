@@ -76,6 +76,16 @@ test: ## Run unit tests. Optionally set packages=<pipelines and/or components> (
 		cd .. ; \
 	done
 
+base_name ?= ${AR_BASE_NAME}
+create-ar-repository: ## Create an Artifact Registry repository. Set TYPE=<docker|python|kfp>. Optionally set base_name (default=AR_BASE_NAME env.sh variable), DESCRIPTION (default="").
+	@echo "################################################################################" && \
+	echo "# Creating AR repository '$$base_name-$$TYPE' in project '$$VERTEX_PROJECT_ID' ..." && \
+	echo "################################################################################" && \
+	gcloud artifacts repositories create $(base_name)-$(TYPE) \
+		--repository-format=$(TYPE)  \
+		--location=${LOCATION} \
+		--description="$(DESCRIPTION)"
+        
 increment ?= false
 part ?= patch
 add_user ?= true
@@ -101,6 +111,8 @@ publish-package: build-package ## Publish Custom Package (under package/) to AR.
 	echo "     Repository name:" ${AR_PYTHON} && \
 	echo "################################################################################" && \
 	cd package  && \
+	echo "# Adding AR authenticaiton dependencies..." && \
+	poetry self update && poetry self add keyrings.google-artifactregistry-auth  && \
 	echo "# Configuring GCP repository..." && \
 	poetry config repositories.gcp https://${AR_PYTHON} && \
 	echo "# Pushing Package..." && \
